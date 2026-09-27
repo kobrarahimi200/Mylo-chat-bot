@@ -1,0 +1,2 @@
+-- HNSW vector indexes are not supported for the 3072-dimension Gemini embeddings used here.
+-- This migration intentionally keeps the schema compatible without a vector HNSW index.

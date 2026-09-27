@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ChatInput from "@/components/ChatInput";
 import ChatMessage from "@/components/ChatMessage";
+import DocumentSkillSelector from "@/components/DocumentSkillSelector";
 import EmptyState from "@/components/EmptyState";
 import Sidebar from "@/components/Sidebar";
 import { loadActiveConversation, loadConversations, loadExpandedFolders, loadFolders, loadLanguage, loadSidebarOpen, loadTheme, saveActiveConversation, saveConversations, saveExpandedFolders, saveFolders, saveLanguage, saveSidebarOpen, saveTheme } from "@/lib/storage";
@@ -25,6 +27,7 @@ export default function Chat() {
   const [expandedFolders, setExpandedFolders] = useState<string[]>([]);
   const [language, setLanguage] = useState<Language>("en");
   const [theme, setTheme] = useState<Theme>("light");
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -109,7 +112,7 @@ export default function Chat() {
     }
     setLoading(true);
     try {
-      const response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: nextMessages, language }) });
+      const response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: nextMessages, language, selectedDocumentId }) });
       const data: unknown = await response.json();
       if (!response.ok || !data || typeof data !== "object" || !("message" in data)) throw new Error(data && typeof data === "object" && "error" in data && typeof data.error === "string" ? data.error : "Unable to get a response.");
       const assistant = { ...(data as { message: Message }).message, id: makeId(), createdAt: Date.now() };
@@ -140,7 +143,15 @@ export default function Chat() {
       <section className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-[76px] shrink-0 items-center justify-between border-b border-slate-200/80 bg-canvas px-5 dark:border-slate-800 dark:bg-slate-900 sm:px-8">
           <div className="flex items-center gap-3"><button onClick={() => { if (window.innerWidth < 768) setMobileOpen(true); else setSidebarOpen((open) => !open); }} className="rounded-lg p-2 text-slate-500 hover:bg-white dark:hover:bg-slate-800" aria-label="Toggle chat history"><svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16M4 18h16" /></svg></button><div><p className="font-semibold text-ink dark:text-slate-100">Mylo AI</p><p className="text-xs text-slate-400">{current ? current.title : language === "fa" ? "گفت‌وگوی جدید" : "A new conversation"}</p></div></div>
-          <span className="hidden items-center gap-2 text-xs text-slate-400 sm:flex"><span className="h-2 w-2 rounded-full bg-emerald-400" />{language === "fa" ? "آماده کمک" : "Ready to help"}</span>
+          <div className="flex items-center gap-3">
+            <span className="hidden items-center gap-2 text-xs text-slate-400 sm:flex"><span className="h-2 w-2 rounded-full bg-emerald-400" />{language === "fa" ? "آماده کمک" : "Ready to help"}</span>
+            <Link
+              href="/admin"
+              className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-ink transition hover:border-accent hover:text-accent dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-accent dark:hover:text-accent"
+            >
+              {language === "fa" ? "پنل مدیریت" : "Admin panel"}
+            </Link>
+          </div>
         </header>
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="min-h-0 flex-1 overflow-y-auto px-4 py-8 sm:px-8">
@@ -152,6 +163,11 @@ export default function Chat() {
           </div>
           <div className="border-t border-slate-200/80 bg-canvas px-4 pb-5 pt-4 dark:border-slate-800 dark:bg-slate-900 sm:px-8">
             {error && <div className="mx-auto mb-3 max-w-3xl rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>}
+            <DocumentSkillSelector
+              language={language}
+              selectedDocumentId={selectedDocumentId}
+              onChange={setSelectedDocumentId}
+            />
             <ChatInput ref={inputRef} value={input} loading={loading} language={language} onChange={setInput} onSend={sendMessage} />
           </div>
         </div>

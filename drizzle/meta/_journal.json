@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790322330441,
+      "tag": "0000_create_rag_documents",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790322362425,
+      "tag": "0001_add_embedding_hnsw_index",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790328643835,
+      "tag": "0002_verify_document_pipeline_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790504777000,
+      "tag": "0003_remove_document_categories",
+      "breakpoints": true
+    }
+  ]
+}
